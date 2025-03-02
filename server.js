@@ -15,7 +15,6 @@ import collectionRoutes from "./routes/collections.route.js";
 dotenv.config();
 
 const PORT = process.env.PORT || 5001;
-
 const app = express();
 
 
@@ -23,11 +22,15 @@ const app = express();
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use("/api/v1/user", userRouter);
-app.use("/api/v1/orders", orderRouter);
+
+//Routes 
+app.use("/api/auth", userRouter);
 app.use("/api/superadmin", superAdminRoutes);
 app.use("/api/labadmin", labAdminRoutes);
-app.use("labs/api/v1/", labRoutes);
+
+
+app.use("/api/v1/orders", orderRouter);
+app.use("/api/v1/labs", labRoutes);
 app.use("/api/v1/tests", testRoutes);
 app.use("/api/v1/packages", packageRoutes);
 app.use("/api/v1/collections", collectionRoutes);
