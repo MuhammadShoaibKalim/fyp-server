@@ -1,5 +1,5 @@
 import Lab from "../models/lab.model.js";
-import User from "../models/user.model.js";
+import User from "../models/auth.model.js";
 
 
 // Create a new lab (Only Lab Admins)
