@@ -15,11 +15,17 @@ import Order from "../models/order.model.js";
         return res.status(404).json({ message: "Lab Admin not found" });
       }
   
-      const isPasswordMatch = await bcrypt.compare(password, labAdmin.password);
-      if (!isPasswordMatch) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-  
+       if (password) {
+               const salt = await bcrypt.genSalt(10);
+               labAdmin.password = await bcrypt.hash(password, salt);
+             }
+             
+             const isPasswordCorrect = await bcrypt.compare(password.trim(), labAdmin.password);
+             // console.log(" Password :",isPasswordCorrect);
+             if (!isPasswordCorrect) {
+               return res.status(401).json({ message: "Invalid email or password" });
+             }
+
       // Generate a JWT token
       const token = generateToken(labAdmin); 
 
@@ -27,7 +33,6 @@ import Order from "../models/order.model.js";
       res.status(200).json({
         success: true,
         message: "Login successful",
-        token,
         labAdmin: {
           id: labAdmin._id,
           email: labAdmin.email,
@@ -35,12 +40,12 @@ import Order from "../models/order.model.js";
           lastName: labAdmin.lastName,
           role: labAdmin.role,
         },
+        token,
       });
     } catch (error) {
       res.status(500).json({ message: "Error logging in Lab Admin", error: error.message });
     }
   };
-
   export const logoutLabAdmin = (req, res) => {
     try {
       res.status(200).json({
@@ -51,8 +56,6 @@ import Order from "../models/order.model.js";
       res.status(500).json({ message: "Error logging out Lab Admin", error: error.message });
     }
   };
-  
-
   export const getLabAdminOverview = async (req, res) => {
     try {
       const labAdminId = req.user.id; 
