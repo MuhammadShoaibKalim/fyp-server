@@ -24,7 +24,7 @@ export const createSuperAdmin = async (req, res) => {
       lastName,
       email,
       password: hashedPassword,
-      role: "superAdmin",
+      role: "Super Admin",
     });
 
     res.status(201).json({
@@ -42,7 +42,7 @@ export const loginSuperAdmin = async (req, res) => {
     const { email, password } = req.body;
 
     // Check if the user exists
-    const user = await User.findOne({ email, role: "superAdmin" });
+    const user = await User.findOne({ email, role: "Super Admin" });
     if (!user) {
       return res.status(404).json({ message: "Super Admin not found" });
     }
@@ -146,221 +146,83 @@ export const createLabAdmin = async (req, res) => {
   }
 };
 
-// controllers/labs/superAdmin.controller.js
-export const getLabs = async (req, res) => {
-    try {
-      const labs = await Lab.find();
-      res.status(200).json(labs);
-    } catch (error) {
-      res.status(500).json({ message: "Error fetching labs", error: error.message });
-    }
-  };
-  export const addLab = async (req, res) => {
-    try {
-      const { name, status } = req.body;
-  
-      const newLab = await Lab.create({
-        name,
-        status,
-      });
-  
-      res.status(201).json({ message: "Lab created successfully", lab: newLab });
-    } catch (error) {
-      res.status(500).json({ message: "Error creating lab", error: error.message });
-    }
-  };
-  export const updateLab = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { name, status } = req.body;
-  
-      const lab = await Lab.findByIdAndUpdate(id, { name, status }, { new: true });
-      res.status(200).json({ message: "Lab updated successfully", lab });
-    } catch (error) {
-      res.status(500).json({ message: "Error updating lab", error: error.message });
-    }
-  };
-  export const deleteLab = async (req, res) => {
-    try {
-      const { id } = req.params;
-      await Lab.findByIdAndDelete(id);
-      res.status(200).json({ message: "Lab deleted successfully" });
-    } catch (error) {
-      res.status(500).json({ message: "Error deleting lab", error: error.message });
-    }
-  };
 
-
-  // controllers/Users/superAdmin.controller.js
-  export const getUsers = async (req, res) => {
-    try {
-      const users = await User.find();
-      res.status(200).json(users);
-    } catch (error) {
-      res.status(500).json({ message: "Error fetching users", error: error.message });
-    }
-  };
-  export const updateUser = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { firstName, lastName, email, role } = req.body;
-  
-      const updatedUser = await User.findByIdAndUpdate(
-        id,
-        { firstName, lastName, email, role },
-        { new: true }
-      );
-  
-      res.status(200).json({ message: "User updated successfully", user: updatedUser });
-    } catch (error) {
-      res.status(500).json({ message: "Error updating user", error: error.message });
-    }
-  };
-  export const deleteUser = async (req, res) => {
-    try {
-      const { id } = req.params;
-      await User.findByIdAndDelete(id);
-      res.status(200).json({ message: "User deleted successfully" });
-    } catch (error) {
-      res.status(500).json({ message: "Error deleting user", error: error.message });
-    }
-  };
-
-
-
-// controllers/collections/superAdmin.controller.js
-export const getCollections = async (req, res) => {
-  try {
-    const collections = await Collection.find();
-    res.status(200).json(collections);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching collections", error: error.message });
-  }
-};
-export const addCollection = async (req, res) => {
-  try {
-    const { name, description, price } = req.body;
-    const newCollection = await Collection.create({ name, description, price });
-    res.status(201).json({ message: "Collection added successfully", collection: newCollection });
-  } catch (error) {
-    res.status(500).json({ message: "Error adding collection", error: error.message });
-  }
-};
-export const updateCollection = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { name, description, price } = req.body;
-    const updatedCollection = await Collection.findByIdAndUpdate(
-      id,
-      { name, description, price },
-      { new: true }
-    );
-    res.status(200).json({ message: "Collection updated successfully", collection: updatedCollection });
-  } catch (error) {
-    res.status(500).json({ message: "Error updating collection", error: error.message });
-  }
-};
-export const deleteCollection = async (req, res) => {
-  try {
-    const { id } = req.params;
-    await Collection.findByIdAndDelete(id);
-    res.status(200).json({ message: "Collection deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Error deleting collection", error: error.message });
-  }
-};
-
-
-
-// controllers/inbox/superAdmin.controller.js
+// Get all inbox messages
 export const getInbox = async (req, res) => {
   try {
-    const inboxMessages = await Inbox.find();
+    const inboxMessages = await Inbox.find().sort({ createdAt: -1 });
     res.status(200).json(inboxMessages);
   } catch (error) {
     res.status(500).json({ message: "Error fetching inbox messages", error: error.message });
   }
 };
+
+// Respond to inbox message
 export const respondToInbox = async (req, res) => {
   try {
     const { id } = req.params;
     const { response } = req.body;
+
     const updatedInbox = await Inbox.findByIdAndUpdate(
       id,
       { response, status: "Responded" },
       { new: true }
     );
+
     res.status(200).json({ message: "Inbox message responded successfully", inbox: updatedInbox });
   } catch (error) {
     res.status(500).json({ message: "Error responding to inbox message", error: error.message });
   }
 };
 
-
-//all pages controller 
-// export const getPages = async (req, res) => {
-//   try {
-//     const pages = await Page.find();
-//     res.status(200).json(pages);
-//   } catch (error) {
-//     res.status(500).json({ message: "Error fetching pages", error: error.message });
-//   }
-// };
-// export const addPage = async (req, res) => {
-//   try {
-//     const { title, content, slug } = req.body;
-//     const newPage = await Page.create({ title, content, slug });
-//     res.status(201).json({ message: "Page added successfully", page: newPage });
-//   } catch (error) {
-//     res.status(500).json({ message: "Error adding page", error: error.message });
-//   }
-// };
-// export const updatePage = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const { title, content, slug } = req.body;
-//     const updatedPage = await Page.findByIdAndUpdate(
-//       id,
-//       { title, content, slug },
-//       { new: true }
-//     );
-//     res.status(200).json({ message: "Page updated successfully", page: updatedPage });
-//   } catch (error) {
-//     res.status(500).json({ message: "Error updating page", error: error.message });
-//   }
-// };
-// export const deletePage = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     await Page.findByIdAndDelete(id);
-//     res.status(200).json({ message: "Page deleted successfully" });
-//   } catch (error) {
-//     res.status(500).json({ message: "Error deleting page", error: error.message });
-//   }
-// };
-
-
-
-// controllers/settings/superAdmin.controller.js
+//Get Super Admin settings
 export const getSettings = async (req, res) => {
   try {
-    const settings = await Settings.findOne();
-    res.status(200).json(settings);
+    const superAdmin = await User.findById(req.user.id).select("-password"); 
+    if (!superAdmin) return res.status(404).json({ message: "Super Admin not found" });
+
+    res.status(200).json(superAdmin);
   } catch (error) {
     res.status(500).json({ message: "Error fetching settings", error: error.message });
   }
 };
+
+// Update Super Admin settings (name, email, etc.)
 export const updateSettings = async (req, res) => {
   try {
-    const { siteName, supportEmail, maintenanceMode } = req.body;
-    const updatedSettings = await Settings.findOneAndUpdate(
-      {},
-      { siteName, supportEmail, maintenanceMode },
-      { new: true, upsert: true }
-    );
-    res.status(200).json({ message: "Settings updated successfully", settings: updatedSettings });
+    const { firstName, lastName, email } = req.body;
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { firstName, lastName, email },
+      { new: true }
+    ).select("-password"); 
+
+    res.status(200).json({ message: "Profile updated successfully", user: updatedUser });
   } catch (error) {
     res.status(500).json({ message: "Error updating settings", error: error.message });
+  }
+};
+
+// Change Super Admin Password
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const superAdmin = await User.findById(req.user.id);
+
+    if (!superAdmin) return res.status(404).json({ message: "User not found" });
+
+    const isMatch = await bcrypt.compare(currentPassword, superAdmin.password);
+    if (!isMatch) return res.status(400).json({ message: "Incorrect current password" });
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    superAdmin.password = hashedPassword;
+    await superAdmin.save();
+
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error changing password", error: error.message });
   }
 };
 
