@@ -1,6 +1,6 @@
 
 import express from "express";
-import {isAuthenticated} from "../middlewares/auth.middleware.js";
+import {isAuthenticated, isRole} from "../middlewares/auth.middleware.js";
 
 import { 
     loginLabAdmin,
@@ -11,6 +11,6 @@ const router = express.Router();
 
 router.post("/login", loginLabAdmin);
 router.post("/logout", logoutLabAdmin);
-router.get("/overview", isAuthenticated, getLabAdminOverview);
+router.get("/overview", isAuthenticated, isRole(["Super Admin"]), getLabAdminOverview);
 
 export default router;
