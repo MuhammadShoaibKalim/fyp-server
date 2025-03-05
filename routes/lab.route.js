@@ -1,17 +1,26 @@
 import express from "express";
 import {
-    createLab,
-    getLabsByLabAdmin,
-    updateLab,
-    deleteLab
+    addLab, getLabs, updateLab, deleteLab, addTestToLab,
+    getCollectionsByLab
 } from "../controllers/lab.controller.js";
-import { isAuthenticated, isRole } from "../middlewares/auth.middleware.js";
-import Lab from "../models/lab.model.js";
+import { protect, isSuperAdmin, isLabAdmin, isAuthenticated } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
-router.post("/", isAuthenticated, isRole(["Lab Admin"]), createLab );
-router.get("/", isAuthenticated, isRole(["Lab Admin"]), getLabsByLabAdmin );
-router.put("/:id", isAuthenticated, isRole(["Lab Admin"]), updateLab);
-router.delete("/:id", isAuthenticated, isRole(["Lab Admin"]), deleteLab);
+
+//  Create a Lab (Super Admin or Lab Admin)
+router.post("/create", protect,  addLab);
+
+// Get Labs (Super Admin sees all, Lab Admin sees their own)
+router.get("/", protect, getLabs);
+
+// Update Lab (Super Admin can update all, Lab Admin can update their own)
+router.put("/:id", protect, updateLab);
+
+// Delete Lab (Only Super Admin)
+router.delete("/:id", protect, isSuperAdmin, deleteLab);
+
+// fetch all tests/packages for a lab
+router.get("/:labId", isAuthenticated, getCollectionsByLab);
+
 
 export default router;
