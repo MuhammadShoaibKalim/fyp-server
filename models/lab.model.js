@@ -10,31 +10,53 @@ const labSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    image: {
-        type: String, 
-        required: false 
-    },
     location: {
-        type: String, 
+        type: String,
         required: true
     },
-    isActive: {
+    description: { 
+        type: String,
+        required: false,
+        trim: true
+    },
+    image: { 
+        type: String,
+        required: false
+    },
+    contactNumber: {
+        type: String,
+        required: false
+    },
+    email: { 
+        type: String,
+        required: false
+    },
+    testsAvailable: { 
+        type: Number,
+        default: 0
+    },
+    isActive: { 
         type: Boolean,
         default: true
     },
     createdBy: { 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: "User", 
-        required: true 
+        ref: "User" },
+    tests: [{ 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "Collection" }],
+    createdAt: { 
+        type: Date, 
+        default: Date.now 
     },
-    createdAt: {
-        type: Date,
-        default: Date.now
+    lastUpdatedBy: { 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
     },
-    tests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Test' }] 
-
+    updatedAt: { 
+        type: Date
+    }
 });
 
 const Lab = mongoose.model("Lab", labSchema);
-
 export default Lab;
