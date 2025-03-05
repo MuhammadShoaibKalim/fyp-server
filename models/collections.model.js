@@ -40,7 +40,7 @@ const CollectionSchema = new mongoose.Schema(
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", 
+      ref: "Lab", 
       required: true,
     },
     bookedCount: {
@@ -55,10 +55,12 @@ const CollectionSchema = new mongoose.Schema(
       type: Boolean,
       default: false, 
     },
-    includes: {
-      type: [String], 
-      default: [],
-    },
+    includes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Collection", 
+      },
+    ],
   },
   { timestamps: true }
 );
