@@ -2,9 +2,10 @@ import express from "express";
 import {
   createSuperAdmin, loginSuperAdmin, logoutSuperAdmin,
   getInbox, respondToInbox, getSettings, updateSettings,
-  superAdminOverview,changePassword
+  superAdminOverview,changePassword,
+  createLabAdmin
 } from "../controllers/superAdmin.controller.js";
-import { isAuthenticated, isRole } from "../middlewares/auth.middleware.js";
+import { isAuthenticated, isSuperAdmin } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
@@ -21,14 +22,20 @@ router.post("/create-superadmin", (req, res, next) => {
 router.post("/login", loginSuperAdmin);
 router.post("/logout", logoutSuperAdmin);
 
+// Super Admin Overview
+router.get("/overview", isSuperAdmin,isAuthenticated, superAdminOverview);
+
+
+//create lab admin
+router.post("/create-labadmin", isSuperAdmin, createLabAdmin);
 
 // Inbox Routes
-router.get("/", isAuthenticated, isRole(["Super Admin"]), getInbox);
-router.post("/inbox/:id", isAuthenticated, isRole(["Super Admin"]), respondToInbox);
+router.get("/", isSuperAdmin,  getInbox);
+router.post("/:id", isSuperAdmin, respondToInbox);
 
 // Super Admin Settings Routes
-router.get("/get-settings", isAuthenticated, isRole(["Super Admin"]), getSettings);
-router.put("/update-settings", isAuthenticated, isRole(["Super Admin"]), updateSettings);
-router.put("/password", isAuthenticated, isRole(["Super Admin"]), changePassword);
+router.get("/get-settings", isSuperAdmin,  getSettings);
+router.put("/update-settings", isSuperAdmin,  updateSettings);
+router.put("/password", isSuperAdmin, changePassword);
 
 export default router;
