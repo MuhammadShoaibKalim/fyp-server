@@ -9,13 +9,10 @@ import superAdminRoutes from "./routes/superAdmin.route.js";
 import labAdminRoutes from "./routes/labAdmin.route.js";
 import {protect} from './middlewares/auth.middleware.js';
 import labRoutes from "./routes/lab.route.js";
-import userRoutes from "./routes/user.route.js";
-import collectionRoutes from "./routes/collections.route.js";
-
-
+// import userRoutes from "./routes/user.route.js";
+import testPackageRoutes from "./routes/testpackage.route.js"
+//load e variables
 dotenv.config();
-
-const PORT = process.env.PORT || 5001;
 const app = express();
 
 
@@ -24,21 +21,24 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+//Routes
 app.use("/api/auth", authRouter);  
-app.use("/api/orders", orderRoutes); 
 app.use("/api/superadmin", superAdminRoutes);
 app.use("/api/labadmin", labAdminRoutes);
-app.use("/api/labs", protect, labRoutes);
-app.use("/api/users", userRoutes)
-app.use("/api/collections", collectionRoutes);
+app.use("/api/labs",  labRoutes);
+app.use("/api/tests", testPackageRoutes );
+app.use("/api/orders", orderRoutes); 
+// app.use("/api/users", userRoutes)
 app.use("/api/settings", superAdminRoutes)
 app.use("/api/inbox", superAdminRoutes);
 
 
-
+//server
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () =>{
     console.log(`Server is running on port ${PORT}`);
 })
 
 
+// Connect to MongoDB
 connectDB();
