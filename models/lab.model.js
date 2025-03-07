@@ -42,10 +42,9 @@ const labSchema = new mongoose.Schema({
     createdBy: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: "User" },
-    tests: [{ 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "Collection" }],
-    createdAt: { 
+    tests: [{ type: mongoose.Schema.Types.ObjectId, ref: "Test" }], 
+    packages: [{ type: mongoose.Schema.Types.ObjectId, ref: "Package" }], 
+       createdAt: { 
         type: Date, 
         default: Date.now 
     },
