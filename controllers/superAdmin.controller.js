@@ -47,18 +47,11 @@ export const loginSuperAdmin = async (req, res) => {
       return res.status(404).json({ message: "Super Admin not found" });
     }
 
-     if (password) {
-          const salt = await bcrypt.genSalt(10);
-          user.password = await bcrypt.hash(password, salt);
-        }
-        
-        const isPasswordCorrect = await bcrypt.compare(password.trim(), user.password);
-        // console.log(" Password :",isPasswordCorrect);
-        if (!isPasswordCorrect) {
-          return res.status(401).json({ message: "Invalid email or password" });
-        }
-  
-  
+    const isPasswordCorrect = await bcrypt.compare(password.trim(), user.password);
+    if (!isPasswordCorrect) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
     const token = generateToken(user);
 
     res.status(200).json({
@@ -76,6 +69,7 @@ export const loginSuperAdmin = async (req, res) => {
     res.status(500).json({ message: "Error logging in", error: error.message });
   }
 };
+
 export const logoutSuperAdmin = (req, res) => {
   try {
     res.status(200).json({
@@ -209,14 +203,22 @@ export const changePassword = async (req, res) => {
     const { currentPassword, newPassword } = req.body;
     const superAdmin = await User.findById(req.user.id);
 
-    if (!superAdmin) return res.status(404).json({ message: "User not found" });
+    if (!superAdmin) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-    const isMatch = await bcrypt.compare(currentPassword, superAdmin.password);
-    if (!isMatch) return res.status(400).json({ message: "Incorrect current password" });
+    // Compare the entered current password with the stored hashed password
+    const isPasswordCorrect = await bcrypt.compare(currentPassword.trim(), superAdmin.password);
 
+    if (!isPasswordCorrect) {
+      return res.status(401).json({ message: "Invalid current password" });
+    }
+
+    // Hash the new password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
+    // Save the new password
     superAdmin.password = hashedPassword;
     await superAdmin.save();
 
