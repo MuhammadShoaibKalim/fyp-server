@@ -2,78 +2,29 @@ import mongoose from "mongoose";
 
 const testSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    description: {
-      type: String,
-      trim: true,
-    },
-    price: {
-      type: Number,
-      required: true,
-    },
-    rating: {
-      type: Number,
-      min: 0,
-      max: 5,
-      default: 0,
-    },
-    bookedCount: {
-      type: Number,
-      default: 0,
-    },
+    name: { type: String, required: true, trim: true },
+    description: { type: String, trim: true },
+    price: { type: Number, required: true },
+    rating: { type: Number, min: 0, max: 5, default: 0 },
+    bookedCount: { type: Number, default: 0 },
     feedbacks: [
       {
-        userId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-        },
-        review: {
-          type: String,
-          trim: true,
-        },
-        rating: {
-          type: Number,
-          min: 1,
-          max: 5,
-        },
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        review: { type: String, trim: true },
+        rating: { type: Number, min: 1, max: 5 },
       },
     ],
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", 
+      ref: "User",
       required: true,
     },
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
-    lab: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Lab", 
-      default: null,
-    },
-    collectionType: {
-      type: String,
-      enum: ["superadmin", "labadmin"], 
-      required: true,
-    },
-    image: {
-      type: String, 
-      trim: true,
-    },
+    isActive: { type: Boolean, default: true },
+    lab: { type: mongoose.Schema.Types.ObjectId, ref: "Lab", default: null },
+    image: { type: String, trim: true },
     bookingDetails: {
-      date: {
-        type: Date,
-        default: null,
-      },
-      time: {
-        type: String,
-        trim: true,
-      },
+      date: { type: Date, default: null },
+      time: { type: String, trim: true },
     },
   },
   { timestamps: true }
