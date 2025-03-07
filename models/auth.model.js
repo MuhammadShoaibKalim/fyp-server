@@ -52,10 +52,15 @@ const UserSchema = new mongoose.Schema(
       match: [/^\d{10,15}$/, "Please provide a valid phone number"],
       default: null,
     },
+    image:{
+      type: String,
+      default: null,
+      required:false
+    },
     role: {
       type: String,
-      enum: ["user", "Lab Admin", "Super Admin"],
-      default: "user",
+      enum: ["User", "Lab Admin", "Super Admin"],
+      default: "User",
     },
     labId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -71,25 +76,11 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-//hashed password before saving
-UserSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
-  try {
-    const salt = await bcrypt.genSalt(10);
-    console.log("Generated Salt:", salt);
-    this.password = await bcrypt.hash(this.password, salt);
-    console.log("Hashed Password:", this.password);
-    next();
-  } catch (error) {
-    next(error);
-  }
+// Hash the password before saving the user model
+UserSchema.pre("save", async function () {
+  this.password = await bcrypt.hash(this.password, 10);
 });
 
-
-//Matched user entered password to hashed password
-UserSchema.methods.matchPassword = async function(enteredPassword) {
-    return await bcrypt.compare(enteredPassword, this.password);
-};
 
 const User = mongoose.model("User", UserSchema);
 
