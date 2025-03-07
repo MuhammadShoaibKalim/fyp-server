@@ -4,7 +4,7 @@ import Test from "../models/test.model.js";
 import Package from "../models/package.model.js";
 import Payment from "../models/payment.model.js";
 
-// Get Recommended Tests
+
 export const getRecommendedTests = async (req, res) => {
     try {
         const { symptoms } = req.body;
@@ -26,9 +26,6 @@ export const getRecommendedTests = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
-
-
-// Book a Test (Without Payment)
 export const bookTestOrPackage = async (req, res) => {
     try {
         const { type, id } = req.body;
@@ -54,8 +51,6 @@ export const bookTestOrPackage = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
-
-// Place Order (With Payment)
 export const placeOrder = async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -107,8 +102,6 @@ export const placeOrder = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
-
-// Get User Orders
 export const getUserOrders = async (req, res) => {
     try {
         const orders = await Order.find({ userId: req.user.id })
@@ -124,8 +117,6 @@ export const getUserOrders = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
-
-// Get Order Details
 export const getOrderDetails = async (req, res) => {
     try {
         const { orderId } = req.params;
@@ -146,8 +137,6 @@ export const getOrderDetails = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
-
-// Cancel Order with Refund Handling
 export const cancelOrder = async (req, res) => {
     try {
         const { orderId } = req.params;
