@@ -1,5 +1,4 @@
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import User from "../models/auth.model.js";
 import { generateToken } from "../utils/auth.util.js";
 
@@ -24,24 +23,22 @@ export const userRegister = async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.create({
-      firstName: firstName,
-      lastName: lastName,
-      email: trimmedEmail,
-      password: hashedPassword,
+    const newUser = new User({
+      firstName,
+      lastName,
+      email,
+      password,
     });
+    const token = generateToken(newUser._id, newUser.email)
+    await newUser.save();
 
-    res.status(201).json({
-      message: "User registered successfully",
-      user: {
-        id: newUser._id,
-        firstname: newUser.firstName,
-        lastname: newUser.lastName,
-        email: newUser.email,
-      },
-      token: generateToken(newUser._id, newUser.email),
+    res.cookie("token", token, {
+      withCredentials: true,
+      httpOnly: false,
     });
+    res
+      .status(201)
+      .json({ message: "User signed in successfully", success: true, newUser });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error: error.message });
   }
@@ -50,7 +47,6 @@ export const userRegister = async (req, res) => {
 // User Login
 export const userLogin = async (req, res) => {
   try {
-    // console.log("Login Request Body:", req.body);
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -59,37 +55,28 @@ export const userLogin = async (req, res) => {
 
     const user = await User.findOne({ email: email.trim().toLowerCase() });
     if (!user) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({ message: "Incorrect password or email" });
     }
 
-    if (password) {
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
+    const auth = await bcrypt.compare(password, user.password)
+    if (!auth) {
+      return res.json({ message: 'Incorrect password or email' })
     }
-    
-
-    const isPasswordCorrect = await bcrypt.compare(password.trim(), user.password);
-    // console.log(" Password :",isPasswordCorrect);
-    if (!isPasswordCorrect) {
-      return res.status(401).json({ message: "Invalid email or password" });
-    }
-
-
-    res.status(200).json({
-      message: "Login successful",
-      user: {
-        id: user._id,
-        firstname: user.firstName,
-        lastname: user.lastName,
-        email: user.email,
-        role: user.role,
-      },
-      token: generateToken(user._id, user.email),
+    const token = generateToken(user._id, user.email)
+    res.cookie("token", token, {
+      withCredentials: true,
+      httpOnly: false,
+    });
+    res.status(201).json({ 
+      message: "User logged in successfully", 
+      success: true,
+      token
     });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
+
 
 //  User Logout
 export const userLogout = (req, res) => {
@@ -99,8 +86,6 @@ export const userLogout = (req, res) => {
     res.status(500).json({ success: false, message: `Internal server error: ${error.message}` });
   }
 };
-
-//  Get User Profile
 export const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -112,15 +97,13 @@ export const getUserProfile = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
-//  Update User Profile
 export const updateUserProfile = async (req, res) => {
   try {
-    const { firstName, lastName, email, phoneNo, address, city, state } = req.body;
+    const { firstName, lastName, email, phoneNo, address, city, state, image } = req.body;
 
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      { firstName, lastName, email, phoneNo, address, city, state },
+      { firstName, lastName, email, phoneNo, address, city, state, image },
       { new: true, runValidators: true }
     ).select("-password");
 
@@ -128,13 +111,11 @@ export const updateUserProfile = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({ success: true, message: "Profile updated successfully", user });
+    res.status(200).json({ success: true, message: "Profilesss updated successfully", user });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
-//  Change Password
 export const changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword, confirmNewPassword } = req.body;
@@ -166,32 +147,13 @@ export const changePassword = async (req, res) => {
   }
 };
 
-//  Refresh Token (Optional)
-// export const refreshToken = (req, res) => {
-//   try {
-//     const token = req.cookies.accessToken;
-//     if (!token) {
-//       return res.status(401).json({ message: "Unauthorized: No token provided" });
-//     }
-
-//     const decoded = jwt.verify(token, process.env.SECRET_KEY);
-//     const newToken = generateToken({ id: decoded.id });
-
-//     res.cookie("accessToken", newToken, { httpOnly: true, sameSite: "strict", maxAge: 24 * 60 * 60 * 1000 });
-//     res.status(200).json({ success: true, token: newToken });
-//   } catch (error) {
-//     res.status(401).json({ message: "Invalid token", error: error.message });
-//   }
-// };
-
-//  Delete User Account
 export const deleteUserAccount = async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.user.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    
+
     res.clearCookie("accessToken").status(200).json({ success: true, message: "Account deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
