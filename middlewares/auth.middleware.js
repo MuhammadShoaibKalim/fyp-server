@@ -11,7 +11,7 @@ export const isAuthenticated = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.SECRET_KEY); 
-
+    
     if (!decoded || !decoded.id) {
       return res.status(401).json({ message: "Unauthorized: Invalid token" });
     }
@@ -31,6 +31,14 @@ export const isAuthenticated = async (req, res, next) => {
   }
 };
 
+// Check if user is a Super Admin
+export const isSuperAdmin = (req, res, next) => {
+  console.log('User:', req.user);
+  if (!req.user || req.user.role !== "Super Admin") {
+    return res.status(403).json({ message: "Access denied. Only Super Admins allowed." });
+  }
+  next(); 
+};
 
 // Middleware to Ensure Lab Admin Access
 export const isLabAdmin = async (req, res, next) => {
@@ -89,11 +97,4 @@ export const protect = async (req, res, next) => {
   }
 };
 
-// Check if user is a Super Admin
-export const isSuperAdmin = (req, res, next) => {
-  console.log('User:', req.user);
-  if (!req.user || req.user.role !== "Super Admin") {
-    return res.status(403).json({ message: "Access denied. Only Super Admins allowed." });
-  }
-  next(); 
-};
+
