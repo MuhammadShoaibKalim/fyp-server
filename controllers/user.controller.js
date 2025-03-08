@@ -1,8 +1,6 @@
 import User from "../models/auth.model.js";
 import bcrypt from "bcryptjs";
 
-
-
   // controllers/Users/superAdmin.controller.js
   export const getUsers = async (req, res) => {
     try {
