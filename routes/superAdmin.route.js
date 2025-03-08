@@ -27,7 +27,7 @@ router.get("/overview", isSuperAdmin,isAuthenticated, superAdminOverview);
 
 
 //create lab admin
-router.post("/create-labadmin", isSuperAdmin, createLabAdmin);
+router.post("/create-labadmin",isAuthenticated, isSuperAdmin, createLabAdmin);
 
 // Inbox Routes
 router.get("/", isSuperAdmin,  getInbox);
