@@ -5,10 +5,8 @@ import Lab from "../models/lab.model.js";
 import Order from "../models/order.model.js";
   
 
-// Create Super Admin
 export const createSuperAdmin = async (req, res) => {
   try {
-    // Check if a Super Admin already exists
     const superAdminExists = await User.findOne({ role: "Super Admin" });
 
     if (superAdminExists) {
@@ -17,13 +15,11 @@ export const createSuperAdmin = async (req, res) => {
 
     const { email, password, firstName, lastName } = req.body;
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const superAdmin = await User.create({
       firstName,
       lastName,
       email,
-      password: hashedPassword,
+      password, 
       role: "Super Admin",
     });
 
@@ -41,35 +37,35 @@ export const loginSuperAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    if(!email || !password){
+      return res.status(400).json({ message:"Email and password are required." })
+    }
     // Check if the user exists
     const user = await User.findOne({ email, role: "Super Admin" });
     if (!user) {
       return res.status(404).json({ message: "Super Admin not found" });
     }
+   const auth = await bcrypt.compare(password, user.password)
 
-    const isPasswordCorrect = await bcrypt.compare(password.trim(), user.password);
-    if (!isPasswordCorrect) {
-      return res.status(401).json({ message: "Invalid email or password" });
-    }
-
-    const token = generateToken(user);
-
-    res.status(200).json({
-      success: true,
-      message: "Login successful",
-      superAdmin: {
-        id: user._id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-      },
-      token,
-    });
+   if(!auth){
+      return res.json({
+        message:"Incorrect password and email"
+      })
+   }
+   const token = generateToken(user._id, user.email);
+   res.cookie("token", token, {
+    withCredentials:true,
+    httpOnly:false,
+   });
+   res.status(200).json({
+    message:"Super admin login Successfully",
+    success:true,
+    token,
+   });
   } catch (error) {
     res.status(500).json({ message: "Error logging in", error: error.message });
   }
 };
-
 export const logoutSuperAdmin = (req, res) => {
   try {
     res.status(200).json({
@@ -80,9 +76,6 @@ export const logoutSuperAdmin = (req, res) => {
     res.status(500).json({ message: "Error logging out", error: error.message });
   }
 };
-
-
-// create superadmin and create lab admin
 export const superAdminOverview = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
@@ -139,9 +132,6 @@ export const createLabAdmin = async (req, res) => {
     res.status(500).json({ message: "Error creating Lab Admin", error: error.message });
   }
 };
-
-
-// Get all inbox messages
 export const getInbox = async (req, res) => {
   try {
     const inboxMessages = await Inbox.find().sort({ createdAt: -1 });
@@ -150,8 +140,6 @@ export const getInbox = async (req, res) => {
     res.status(500).json({ message: "Error fetching inbox messages", error: error.message });
   }
 };
-
-// Respond to inbox message
 export const respondToInbox = async (req, res) => {
   try {
     const { id } = req.params;
@@ -168,8 +156,6 @@ export const respondToInbox = async (req, res) => {
     res.status(500).json({ message: "Error responding to inbox message", error: error.message });
   }
 };
-
-//Get Super Admin settings
 export const getSettings = async (req, res) => {
   try {
     const superAdmin = await User.findById(req.user.id).select("-password"); 
@@ -180,8 +166,6 @@ export const getSettings = async (req, res) => {
     res.status(500).json({ message: "Error fetching settings", error: error.message });
   }
 };
-
-// Update Super Admin settings (name, email, etc.)
 export const updateSettings = async (req, res) => {
   try {
     const { firstName, lastName, email } = req.body;
@@ -196,8 +180,6 @@ export const updateSettings = async (req, res) => {
     res.status(500).json({ message: "Error updating settings", error: error.message });
   }
 };
-
-// Change Super Admin Password
 export const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
