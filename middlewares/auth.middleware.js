@@ -33,7 +33,7 @@ export const isAuthenticated = async (req, res, next) => {
 
 // Check if user is a Super Admin
 export const isSuperAdmin = (req, res, next) => {
-  console.log('User:', req.user);
+  // console.log('User:', req.user);
   if (!req.user || req.user.role !== "Super Admin") {
     return res.status(403).json({ message: "Access denied. Only Super Admins allowed." });
   }
