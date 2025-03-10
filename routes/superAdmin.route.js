@@ -23,19 +23,19 @@ router.post("/login", loginSuperAdmin);
 router.post("/logout", logoutSuperAdmin);
 
 // Super Admin Overview
-router.get("/overview", isSuperAdmin,isAuthenticated, superAdminOverview);
+router.get("/overview", isAuthenticated, isSuperAdmin, superAdminOverview);
 
 
 //create lab admin
 router.post("/create-labadmin",isAuthenticated, isSuperAdmin, createLabAdmin);
 
 // Inbox Routes
-router.get("/", isSuperAdmin,  getInbox);
-router.post("/:id", isSuperAdmin, respondToInbox);
+router.get("/", isAuthenticated, isSuperAdmin,  getInbox);
+router.post("/:id", isAuthenticated, isSuperAdmin, respondToInbox);
 
 // Super Admin Settings Routes
-router.get("/get-settings", isSuperAdmin,  getSettings);
-router.put("/update-settings", isSuperAdmin,  updateSettings);
-router.put("/password", isSuperAdmin, changePassword);
+router.get("/get-settings", isAuthenticated, isSuperAdmin,  getSettings);
+router.put("/update-settings", isAuthenticated, isSuperAdmin,  updateSettings);
+router.put("/password", isAuthenticated, isSuperAdmin, changePassword);
 
 export default router;
