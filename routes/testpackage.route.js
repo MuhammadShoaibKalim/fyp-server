@@ -1,17 +1,27 @@
 import express from "express";
-import { createTest, updateTest, deleteTest, getAllTests,createPackage, updatePackage, deletePackage, getAllPackages  } from "../controllers/testpackage.controller.js";
-import {  isLabAdmin, isAuthenticated } from "../middlewares/auth.middleware.js";
+import { 
+  createTest, updateTest, deleteTest, getAllTests,
+  createPackage, updatePackage, deletePackage, getAllPackages, 
+  getPackageById,
+  getTestById
+} from "../controllers/testpackage.controller.js";
+import { isLabAdmin, isAuthenticated } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
-router.post("/", isAuthenticated, isLabAdmin, createTest);
-router.put("/:id", isAuthenticated, isLabAdmin, updateTest);
-router.delete("/:id", isAuthenticated, isLabAdmin, deleteTest);
-router.get("/", isAuthenticated, getAllTests);
+// Test Routes
+router.post("/add-test", isAuthenticated, isLabAdmin, createTest);
+router.put("/update-test/:id", isAuthenticated, isLabAdmin, updateTest);
+router.delete("/delete-test/:id", isAuthenticated, isLabAdmin, deleteTest);
+router.get("/get-all-tests", isAuthenticated, getAllTests);
+router.get("/get-test/:id", isAuthenticated, getTestById);
 
 
-router.post("/", isAuthenticated, isLabAdmin, createPackage);
-router.put("/:id", isAuthenticated, isLabAdmin, updatePackage);
-router.delete("/:id", isAuthenticated, isLabAdmin, deletePackage);
-router.get("/", isAuthenticated, getAllPackages);
+// Package Routes
+router.post("/add-package", isAuthenticated, isLabAdmin, createPackage);
+router.put("/update-package/:id", isAuthenticated, isLabAdmin, updatePackage);
+router.delete("/delete-package/:id", isAuthenticated, isLabAdmin, deletePackage);
+router.get("/get-all-packages", isAuthenticated, getAllPackages);
+router.get("/get-package/:id", isAuthenticated, getPackageById);
+
 export default router;
