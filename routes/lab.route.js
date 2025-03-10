@@ -5,14 +5,13 @@ import {
   updateLab,
   deleteLab,
 } from "../controllers/lab.controller.js";
-import { isLabAdmin, isAuthenticated } from "../middlewares/auth.middleware.js";
+import {  isAuthenticated, isLabAdmin, isSuperAdmin } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
-router.post("/create", isLabAdmin, isAuthenticated, addLab);
-router.put("/:id", isLabAdmin, isAuthenticated, updateLab);
-router.get("/", isLabAdmin, isAuthenticated, getLab);
-router.post("/create", isLabAdmin, isAuthenticated, addLab);
+router.post("/create", isAuthenticated, isSuperAdmin , addLab);
+router.put("/:id", isAuthenticated, isLabAdmin, updateLab);
+router.get("/", isAuthenticated, isSuperAdmin, isLabAdmin, getLab);
 router.delete("/:id", isLabAdmin, isAuthenticated, deleteLab);
 
 export default router;
