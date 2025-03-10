@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import { generateToken } from "../utils/auth.util.js";
 import Lab from "../models/lab.model.js";
 import Order from "../models/order.model.js";
-  
+import TestPackage from "../models/package.model.js";
 
 export const createSuperAdmin = async (req, res) => {
   try {
@@ -78,54 +78,91 @@ export const logoutSuperAdmin = (req, res) => {
 };
 export const superAdminOverview = async (req, res) => {
   try {
+    // Fetch total counts
     const totalUsers = await User.countDocuments();
     const totalLabs = await Lab.countDocuments();
     const totalOrders = await Order.countDocuments();
+
+    // Fetch top 5 labs with the most orders
+    const labsWithMostOrders = await Order.aggregate([
+      { $group: { _id: "$labId", totalOrders: { $sum: 1 } } },
+      { $sort: { totalOrders: -1 } },
+      { $limit: 5 },
+      {
+        $lookup: {
+          from: "labs",
+          localField: "_id",
+          foreignField: "_id",
+          as: "labDetails",
+        },
+      },
+      { $unwind: "$labDetails" },
+      { $project: { _id: 0, name: "$labDetails.name", Orders: "$totalOrders" } },
+    ]);
+
+    // Fetch most used/booked tests
+    const mostUsedTests = await Order.aggregate([
+      { $unwind: "$tests" }, // Decomposing array of tests
+      { $group: { _id: "$tests.testName", value: { $sum: 1 } } },
+      { $sort: { value: -1 } },
+      { $limit: 5 },
+      { $project: { name: "$_id", value: 1, _id: 0 } },
+    ]);
+
+    // Order status breakdown
+    const orderStatus = await Order.aggregate([
+      { $group: { _id: "$status", value: { $sum: 1 } } },
+      { $project: { name: "$_id", value: 1, _id: 0 } },
+    ]);
 
     res.status(200).json({
       totalUsers,
       totalLabs,
       totalOrders,
+      labsWithMostOrders,
+      mostUsedTests,
+      orderStatus,
     });
   } catch (error) {
     res.status(500).json({ message: "Error fetching overview data", error: error.message });
   }
 };
+
 export const createLabAdmin = async (req, res) => {
   try {
     if (!req.user || req.user.role !== "Super Admin") {
       return res.status(403).json({ message: "Access denied. Only Super Admin can create Lab Admins." });
     }
 
-    const { email, password, firstName, lastName } = req.body;
+    const { firstName, lastName, email, password, labId } = req.body;
 
-    // Validate input fields
-    if (!email || !password || !firstName || !lastName) {
+    if (!firstName || !lastName || !email || !password || !labId) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Check if the email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "User with this email already exists." });
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const lab = await Lab.findById(labId);
+    if (!lab) {
+      return res.status(404).json({ message: "Lab not found" });
+    }
 
-    // Create the Lab Admin user
+   
     const labAdmin = await User.create({
       firstName,
       lastName,
       email,
-      password: hashedPassword,
+      password,
       role: "Lab Admin",
+      assignedLab: labId, 
     });
 
-    // Send success response
     res.status(201).json({
       success: true,
-      message: "Lab Admin created successfully",
+      message: "Lab Admin created and assigned to lab successfully",
       labAdmin,
     });
   } catch (error) {
