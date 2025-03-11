@@ -10,6 +10,8 @@ import labAdminRoutes from "./routes/labAdmin.route.js";
 import {protect} from './middlewares/auth.middleware.js';
 import labRoutes from "./routes/lab.route.js";
 import userRoutes from "./routes/user.route.js";
+import queryRoutes from "./routes/query.route.js"
+import aiRoutes from "./routes/ai.route.js"
 import testPackageRoutes from "./routes/testpackage.route.js"
 //load e variables
 dotenv.config();
@@ -31,7 +33,8 @@ app.use("/api/packages", testPackageRoutes );
 app.use("/api/orders", orderRoutes); 
 app.use("/api/users", userRoutes)
 app.use("/api/settings", superAdminRoutes)
-app.use("/api/inbox", superAdminRoutes);
+app.use("/api/query", queryRoutes);
+app.use("/api/ai", aiRoutes)
 
 
 //server
