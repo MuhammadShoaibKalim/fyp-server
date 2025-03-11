@@ -68,6 +68,13 @@ export const loginSuperAdmin = async (req, res) => {
 };
 export const logoutSuperAdmin = (req, res) => {
   try {
+    // Clear the authentication token stored in cookies
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+    });
+
     res.status(200).json({
       success: true,
       message: "Logout successful",
@@ -76,6 +83,7 @@ export const logoutSuperAdmin = (req, res) => {
     res.status(500).json({ message: "Error logging out", error: error.message });
   }
 };
+
 export const superAdminOverview = async (req, res) => {
   try {
     // Fetch total counts
@@ -137,7 +145,7 @@ export const createLabAdmin = async (req, res) => {
     const { firstName, lastName, email, password, labId } = req.body;
 
     if (!firstName || !lastName || !email || !password || !labId) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ message: "All fields are required." });
     }
 
     const existingUser = await User.findOne({ email });
@@ -150,15 +158,18 @@ export const createLabAdmin = async (req, res) => {
       return res.status(404).json({ message: "Lab not found" });
     }
 
-   
     const labAdmin = await User.create({
       firstName,
       lastName,
       email,
       password,
       role: "Lab Admin",
-      assignedLab: labId, 
+      labId: labId, 
     });
+
+    // Update Lab to assign the Lab Admin
+    await Lab.findByIdAndUpdate(labId, { createdBy: labAdmin._id });
+    
 
     res.status(201).json({
       success: true,
@@ -169,6 +180,7 @@ export const createLabAdmin = async (req, res) => {
     res.status(500).json({ message: "Error creating Lab Admin", error: error.message });
   }
 };
+
 export const getInbox = async (req, res) => {
   try {
     const inboxMessages = await Inbox.find().sort({ createdAt: -1 });
