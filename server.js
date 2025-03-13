@@ -12,6 +12,7 @@ import labRoutes from "./routes/lab.route.js";
 import userRoutes from "./routes/user.route.js";
 import queryRoutes from "./routes/query.route.js"
 import aiRoutes from "./routes/ai.route.js"
+import cartRoutes from "./routes/cart.route.js"
 import testPackageRoutes from "./routes/testpackage.route.js"
 //load e variables
 dotenv.config();
@@ -30,11 +31,12 @@ app.use("/api/labadmin", labAdminRoutes);
 app.use("/api/labs",  labRoutes);
 app.use("/api/tests", testPackageRoutes );
 app.use("/api/packages", testPackageRoutes );
-app.use("/api/orders", orderRoutes); 
 app.use("/api/users", userRoutes)
 app.use("/api/settings", superAdminRoutes)
 app.use("/api/query", queryRoutes);
 app.use("/api/ai", aiRoutes)
+app.use("/api/cart", cartRoutes);
+app.use("/api/orders", orderRoutes);
 
 
 //server
