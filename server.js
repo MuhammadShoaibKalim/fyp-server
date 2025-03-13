@@ -32,7 +32,6 @@ app.use("/api/labs",  labRoutes);
 app.use("/api/tests", testPackageRoutes );
 app.use("/api/packages", testPackageRoutes );
 app.use("/api/users", userRoutes)
-app.use("/api/settings", superAdminRoutes)
 app.use("/api/query", queryRoutes);
 app.use("/api/ai", aiRoutes)
 app.use("/api/cart", cartRoutes);
