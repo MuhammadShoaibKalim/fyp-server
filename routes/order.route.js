@@ -1,27 +1,24 @@
-import express from 'express';
+import express from "express";
 import {
-    getRecommendedTests,
-    bookTestOrPackage,
-    placeOrder,
-    getUserOrders,
-    getOrderDetails,
-    cancelOrder
+  createOrder,
+  getUserOrders,
+  updateOrderStatus,
+  deleteOrder,
+  getAllOrders,
+  cancelOrder
 } from "../controllers/order.controller.js";
-import { isAuthenticated } from "../middlewares/auth.middleware.js";  
+
+import { isAuthenticated, isLabAdmin } from "../middlewares/auth.middleware.js";
+
 const router = express.Router();
 
-router.post('/place-order', placeOrder);
-router.get('/order-result', getUserOrders);
-
-
-
-// User Services Routes
-router.post("/recommend-tests", isAuthenticated, getRecommendedTests); 
-router.post("/book-test", isAuthenticated, bookTestOrPackage); 
-router.post("/place-order", isAuthenticated, placeOrder); 
-router.get("/orders", isAuthenticated, getUserOrders);
-router.get("/order/:orderId", isAuthenticated, getOrderDetails); 
-router.delete("/order/:orderId/cancel", isAuthenticated, cancelOrder); 
-
+//Need to test -> //
+router.post("/create", isAuthenticated, createOrder);
+router.get("/", isAuthenticated, isLabAdmin, getUserOrders);
+router.get("/all", isAuthenticated, isLabAdmin, getAllOrders);
+router.get("/:id", isAuthenticated, getUserOrders);
+router.put("/:id/status", isAuthenticated, isLabAdmin, updateOrderStatus);
+router.put("/:id/cancel", isAuthenticated, cancelOrder);
+router.delete("/:id", isAuthenticated, isLabAdmin, deleteOrder);//
 
 export default router;
