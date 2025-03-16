@@ -14,10 +14,18 @@ import queryRoutes from "./routes/query.route.js"
 import aiRoutes from "./routes/ai.route.js"
 import cartRoutes from "./routes/cart.route.js"
 import testPackageRoutes from "./routes/testpackage.route.js"
+import cors from "cors";
+
 //load e variables
 dotenv.config();
 const app = express();
 
+
+
+// app.use(cors({
+//   origin: "http://localhost:5173", 
+//   credentials: true,
+// }));
 
 // Middleware
 app.use(express.json());
@@ -38,6 +46,9 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 
 
+// Connect to MongoDB
+connectDB();      
+
 //server
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () =>{
@@ -45,6 +56,4 @@ app.listen(PORT, () =>{
 })
 
 
-// Connect to MongoDB
-connectDB();      
 
