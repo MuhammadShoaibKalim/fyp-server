@@ -1,18 +1,6 @@
 import express from "express";
-import {
-  placeOrder,
-  confirmCODPayment,
-  processOnlinePayment,
-  handlePaymentSuccess,
-  handlePaymentFailure,
-} from "../controllers/orderController.js";
-
+import { checkoutSession } from "../controllers/payment.controller.js";
 const router = express.Router();
 
-router.post("/place-order", placeOrder);
-router.post("/confirm-cod/:orderId", confirmCODPayment);
-router.get("/pay/:orderId/:method", processOnlinePayment);
-router.post("/payment-success", handlePaymentSuccess);
-router.post("/payment-failure", handlePaymentFailure);
-
+router.post("/create-checkout-session", checkoutSession);
 export default router;
