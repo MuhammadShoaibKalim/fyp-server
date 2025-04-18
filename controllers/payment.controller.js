@@ -32,7 +32,7 @@ export const checkoutSession = async (req, res) => {
 
   const lineItems = items.map((item) => ({
     price_data: {
-      currency: 'pkr',
+      currency: 'usd',
       product_data: {
         name: item.name, 
       },
