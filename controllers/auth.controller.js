@@ -11,6 +11,7 @@ export const userRegister = async (req, res) => {
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
       return res.status(400).json({ message: "All fields are required" });
     }
+    
 
     if (password !== confirmPassword) {
       return res.status(400).json({ message: "Password and confirm password do not match" });
@@ -22,13 +23,16 @@ export const userRegister = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
       firstName,
       lastName,
       email,
-      password,
+      password:hashedPassword
     });
+    await newUser.save();
+
     const token = generateToken(newUser._id, newUser.email)
     await newUser.save();
 
@@ -57,20 +61,15 @@ export const userLogin = async (req, res) => {
     if (!user) {
       return res.status(401).json({ message: "Incorrect password or email" });
     }
+     
 
-    const auth = await bcrypt.compare(password, user.password)
-    if (!auth) {
-      return res.json({ message: 'Incorrect password or email' })
-    }
-    const token = generateToken(user._id, user.email)
-    res.cookie("token", token, {
-      withCredentials: true,
-      httpOnly: false,
-    });
-    res.status(201).json({ 
-      message: "User logged in successfully", 
-      success: true,
-      token
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+if (!isPasswordValid) {
+  return res.json({ message: 'Incorrect password or email' });
+}
+const token = generateToken(user._id, user.email);
+res.cookie("token", token, { withCredentials: true, httpOnly: false });
+res.status(201).json({ message: "User logged in successfully", success: true, token
     });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error: error.message });
